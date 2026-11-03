@@ -29,6 +29,20 @@ if (string.IsNullOrWhiteSpace(jwt.Key) || jwt.Key.Length < 32)
         "Jwt:Key is missing or shorter than 32 characters. Set it with: dotnet user-secrets set \"Jwt:Key\" \"<random 64 chars>\"");
 
 var connectionString = config.GetConnectionString("DefaultConnection");
+// Hosts like Render pass the database as a postgresql:// URL, which Npgsql does not parse.
+if (string.IsNullOrWhiteSpace(connectionString) &&
+    Uri.TryCreate(config["DATABASE_URL"], UriKind.Absolute, out var dbUrl) && dbUrl.Scheme.StartsWith("postgres"))
+{
+    var userInfo = dbUrl.UserInfo.Split(':', 2);
+    connectionString = new Npgsql.NpgsqlConnectionStringBuilder
+    {
+        Host = dbUrl.Host,
+        Port = dbUrl.IsDefaultPort || dbUrl.Port <= 0 ? 5432 : dbUrl.Port,
+        Database = dbUrl.AbsolutePath.TrimStart('/'),
+        Username = Uri.UnescapeDataString(userInfo[0]),
+        Password = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : null,
+    }.ConnectionString;
+}
 if (string.IsNullOrWhiteSpace(connectionString))
     throw new InvalidOperationException(
         "ConnectionStrings:DefaultConnection is missing. Set it with dotnet user-secrets (see README.md).");
