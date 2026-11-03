@@ -1,0 +1,19 @@
+bin/
+obj/
+*.user
+.vs/
+.vscode/
+.idea/
+
+# Runtime data (uploaded images, private originals)
+src/BusinessCard.Api/wwwroot/uploads/
+src/BusinessCard.Api/storage/
+
+# Local secrets / env
+.env
+*.env
+appsettings.*.local.json
+
+# Local generated credentials
+LOCAL_CREDENTIALS.txt
+.secrets.tmp

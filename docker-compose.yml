@@ -1,0 +1,19 @@
+# Local PostgreSQL for development. Start:  docker compose up -d
+# Password comes from the .env file next to this file (POSTGRES_PASSWORD=...), never commit it.
+services:
+  postgres:
+    image: postgres:17
+    container_name: businesscard-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: businesscard_app
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: businesscard_db
+      TZ: UTC
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - businesscard-pgdata:/var/lib/postgresql/data
+
+volumes:
+  businesscard-pgdata:
